@@ -1,10 +1,11 @@
 # Default values for neulander.
-# This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
+###############################################################################
+# RABBITMQ
+###############################################################################
 rabbitmq:
   enabled: true
-  allowedNamespaces: "*"
+  allowedNamespaces: "neulander"
   resources:
     requests:
       cpu: 100m
@@ -19,6 +20,23 @@ rabbitmq:
     collect_statistics_interval = 10000
   annotations: {}
 
+###############################################################################
+# NEULANDER API
+###############################################################################
+
+api:
+  image:
+
+###############################################################################
+# WORKER - MEDCAT
+###############################################################################
+medcat:
+  podAnnotations: {}
+
+###############################################################################
+# INGRESS
+###############################################################################
+
 replicaCount: 1
 
 image:
@@ -27,9 +45,13 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+###############################################################################
+# COMMON ROOT LEVEL VALUES
+###############################################################################
+
 imagePullSecrets: []
 nameOverride: ""
-fullnameOverride: ""
+fullnameOverride: "neulander"
 
 serviceAccount:
   # Specifies whether a service account should be created

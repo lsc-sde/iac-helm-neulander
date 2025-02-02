@@ -1,16 +1,19 @@
-{{- if .Valyes.rabbitmq.enabled }}
+{{- with .Values.rabbitmq  -}}
 apiVersion: rabbitmq.com/v1beta1
 kind: RabbitmqCluster
 metadata:
-  name: nlp-cluster
+  name: neulander-rabbit
   annotations:
-    rabbitmq.com/topology-allowed-namespaces: {{ .Values.rabbitmq.allowedNamespaces }}
+    rabbitmq.com/topology-allowed-namespaces: {{ .allowedNamespaces }}
+    {{- with .annotations }}
+    {{- toYaml .annotations | nindent 4 }}
+    {{- end }}
 spec:
   service:
     type: ClusterIP
-  replicas: {{ .Values.rabbitmq.replicaCount }}
+  replicas: {{ .replicaCount }}
   resources:
-    {{- toYaml .Values.rabbitmq.resources | nindent 4 }}
+    {{- toYaml .resources | nindent 4 }}
   rabbitmq:
-    additionalConfig: {{ .Values.rabbitmq.additionalConfig }}
+    additionalConfig: {{ .additionalConfig }}
 {{- end }}
