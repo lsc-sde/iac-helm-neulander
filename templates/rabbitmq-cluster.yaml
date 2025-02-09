@@ -15,5 +15,5 @@ spec:
   resources:
     {{- toYaml .resources | nindent 4 }}
   rabbitmq:
-    additionalConfig: {{ .additionalConfig }}
+    additionalConfig: {{toString .additionalConfig }}
 {{- end }}
