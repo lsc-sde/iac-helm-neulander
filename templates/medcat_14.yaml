@@ -1,0 +1,76 @@
+##############################################################################
+# Medcat Worker Deployment
+##############################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neulander-worker-medcat
+  namespace: neulander
+  labels:
+    app: neulander-medcat_14
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neulander-medcat_14
+  template:
+    metadata:
+      labels:
+        app: neulander-medcat_14
+    spec:
+      containers:
+      - name: medcat-container
+        image: your-docker-image:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: ENV_VAR_NAME
+          value: "value"
+
+##############################################################################
+# KEDA ScaledObject and Trigger
+##############################################################################
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: neulander-worker-medcat
+  labels:
+    app: neulander-medcat_14
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1  # Optional. Default: apps/v1
+    kind: Deployment         # Optional. Default: Deployment
+    name: neulander-worker-medcat        # Mandatory. Must be in the same namespace as the ScaledObject
+  pollingInterval:  30                               # Optional. Default: 30 seconds
+  cooldownPeriod:   300                              # Optional. Default: 300 seconds
+  # idleReplicaCount: 0                                # Optional. Default: ignored, must be less than minReplicaCount 
+  minReplicaCount:  0                                # Optional. Default: 0
+  maxReplicaCount:  10                            # Optional. Default: 100
+  fallback:                                          # Optional. Section to specify fallback options
+    failureThreshold: 3                              # Mandatory if fallback section is included
+    replicas: 6                                      # Mandatory if fallback section is included
+#   advanced:                                          # Optional. Section to specify advanced options
+#     restoreToOriginalReplicaCount: true/false        # Optional. Default: false
+#     horizontalPodAutoscalerConfig:                   # Optional. Section to specify HPA related options
+#       name: {name-of-hpa-resource}                   # Optional. Default: keda-hpa-{scaled-object-name}
+#       behavior:                                      # Optional. Use to modify HPA's scaling behavior
+#         scaleDown:
+#           stabilizationWindowSeconds: 300
+#           policies:
+#           - type: Percent
+#             value: 100
+#             periodSeconds: 15
+triggers:
+- type: rabbitmq
+  metadata:
+    host: amqp://localhost:5672/vhost # Optional. If not specified, it must be done by using TriggerAuthentication.
+    protocol: auto # Optional. Specifies protocol to use, either amqp or http, or auto to autodetect based on the `host` value. Default value is auto.
+    mode: QueueLength # QueueLength or MessageRate
+    value: "10.5" # message backlog or publish/sec. target per instance
+    activationValue: "10.5" # Optional. Activation threshold
+    queueName: q-medcat_14-in # Mandatory. Name of the queue
+    vhostName: / # Optional. If not specified, use the vhost in the `host` connection string. Required for Azure AD Workload Identity authorization (see bellow)
+    # Alternatively, you can use existing environment variables to read configuration from:
+    # See details in "Parameter list" section
+    # hostFromEnv: RABBITMQ_HOST # Optional. You can use this instead of `host` parameter
+    unsafeSsl: true
