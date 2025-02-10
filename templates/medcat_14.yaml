@@ -20,7 +20,8 @@ spec:
     spec:
       containers:
       - name: medcat-container
-        image: {{ .Values.containerRegistry }}/neulander-medcat:latest
+        image: {{ .Values.containerRegistry }}/{{ .Values.medcat.image.name }}:{{ .Values.medcat.image.tag }}
+        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
         ports:
         - containerPort: 8000
         env:
@@ -37,17 +38,47 @@ spec:
           - name: RABBITMQ_USER
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-default-user
+                name: neulander-rmq-nondefault-user
                 key: username
           - name: RABBITMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-default-user
+                name: neulander-rmq-nondefault-user
                 key: password
+          - name: RABBITMQ_CONNECTION_STRING
+            valueFrom:
+              secretKeyRef:
+                name: neulander-rmq-nondefault-user
+                key: connection_string
           - name: MEDCAT_MODEL_PATH
-            value: /models/medcat_14
+            value: {{ .Values.medcat.medcatModelPath }}
+          {{- if eq .Values.medcat.dummyMode true }}
           - name: DUMMY_MODE
             value: "true"
+          {{- end }}
+        resources:
+        {{- if eq .Values.medcat.dummyMode true }}
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+        {{ else }}
+            {{- toYaml .Values.medcat.resources | nindent 12 }}
+        {{ end -}}
+        # livenessProbe:
+        #   httpGet:
+        #     path: /liveness
+        #     port: 8000
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 60
+        # readinessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 8000
+        #   initialDelaySeconds: 30
+        #   periodSeconds: 60
 ---
 ##############################################################################
 # KEDA ScaledObject and Trigger
@@ -56,6 +87,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: neulander-worker-medcat
+  namespace: neulander
   labels:
     app: neulander-medcat_14
 spec:
@@ -67,10 +99,10 @@ spec:
   cooldownPeriod:   300                              # Optional. Default: 300 seconds
   # idleReplicaCount: 0                                # Optional. Default: ignored, must be less than minReplicaCount 
   minReplicaCount:  0                                # Optional. Default: 0
-  maxReplicaCount:  10                            # Optional. Default: 100
-  fallback:                                          # Optional. Section to specify fallback options
-    failureThreshold: 3                              # Mandatory if fallback section is included
-    replicas: 6                                      # Mandatory if fallback section is included
+  maxReplicaCount:  {{ .Values.medcat.keda.maxReplicaCount }}                           # Optional. Default: 100
+  # fallback:                                          # Optional. Section to specify fallback options
+  #   failureThreshold: 3                              # Mandatory if fallback section is included
+  #   replicas: 6                                      # Mandatory if fallback section is included
 #   advanced:                                          # Optional. Section to specify advanced options
 #     restoreToOriginalReplicaCount: true/false        # Optional. Default: false
 #     horizontalPodAutoscalerConfig:                   # Optional. Section to specify HPA related options
@@ -85,14 +117,17 @@ spec:
   triggers:
   - type: rabbitmq
     metadata:
-      host: amqp://localhost:5672/vhost # Optional. If not specified, it must be done by using TriggerAuthentication.
       protocol: auto # Optional. Specifies protocol to use, either amqp or http, or auto to autodetect based on the `host` value. Default value is auto.
       mode: QueueLength # QueueLength or MessageRate
-      value: "10.5" # message backlog or publish/sec. target per instance
-      activationValue: "10.5" # Optional. Activation threshold
+      value: "{{ .Values.medcat.keda.queueLength }}" # message backlog or publish/sec. target per instance
+      activationValue: "{{ .Values.medcat.keda.activationValue }}" # Optional. Activation threshold
       queueName: q-medcat_14-in # Mandatory. Name of the queue
       vhostName: / # Optional. If not specified, use the vhost in the `host` connection string. Required for Azure AD Workload Identity authorization (see bellow)
       # Alternatively, you can use existing environment variables to read configuration from:
       # See details in "Parameter list" section
       # hostFromEnv: RABBITMQ_HOST # Optional. You can use this instead of `host` parameter
       unsafeSsl: "true"
+      # hostFromEnv: RABBITMQ_CONNECTION_STRING # Optional. You can use this instead of `host` parameter
+      usernameFromEnv: RABBITMQ_USER # Optional. You can use this instead of TriggerAuthentication
+      passwordFromEnv: RABBITMQ_PASSWORD
+      host: amqp://neulander-rmq.neulander.svc:5672/

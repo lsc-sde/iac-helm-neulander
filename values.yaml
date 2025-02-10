@@ -1,2 +1,43 @@
 # Default values for neulander.
 containerRegistry: docker.io/vvcb
+##############################################################################
+# API
+##############################################################################
+api:
+  image:
+    name: neulander-api
+    tag: latest
+    pullPolicy: IfNotPresent
+
+##############################################################################
+# Medcat Worker and KEDA scaling
+##############################################################################
+medcat:
+  image:
+    name: neulander-medcat
+    tag: latest
+    pullPolicy: IfNotPresent
+  dummyMode: true # Set to true to run medcat in dummy mode
+  medcatModelPath: /models/medcat_14 # Ignored if dummyMode is true
+  keda:
+    queueLength: 100 # Number of messages per worker
+    activationValue: 0 # Number of messages to scale from 0 -> 1
+    maxReplicaCount: 4 # Maximum number of replicas
+  resources: # Resource limits and requests when not in dummyMode
+    limits:
+      cpu: "1200m"
+      memory: "10Gi"
+    requests:
+      cpu: "800m"
+      memory: "8Gi"
+##############################################################################
+# Ingress to expose the API. No other parts of the application are exposed.
+##############################################################################
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - host: chart-example.local
+
+  tls:
+    enabled: false
