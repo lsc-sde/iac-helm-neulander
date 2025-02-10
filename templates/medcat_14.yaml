@@ -20,13 +20,35 @@ spec:
     spec:
       containers:
       - name: medcat-container
-        image: your-docker-image:latest
+        image: {{ .Values.containerRegistry }}/neulander-medcat:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8000
         env:
-        - name: ENV_VAR_NAME
-          value: "value"
-
+          - name: RABBITMQ_HOST
+            valueFrom:
+              secretKeyRef:
+                name: neulander-rmq-default-user
+                key: host
+          - name: RABBITMQ_PORT
+            valueFrom:
+              secretKeyRef:
+                name: neulander-rmq-default-user
+                key: port
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: neulander-rmq-default-user
+                key: username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: neulander-rmq-default-user
+                key: password
+          - name: MEDCAT_MODEL_PATH
+            value: /models/medcat_14
+          - name: DUMMY_MODE
+            value: "true"
+---
 ##############################################################################
 # KEDA ScaledObject and Trigger
 ##############################################################################
@@ -60,17 +82,17 @@ spec:
 #           - type: Percent
 #             value: 100
 #             periodSeconds: 15
-triggers:
-- type: rabbitmq
-  metadata:
-    host: amqp://localhost:5672/vhost # Optional. If not specified, it must be done by using TriggerAuthentication.
-    protocol: auto # Optional. Specifies protocol to use, either amqp or http, or auto to autodetect based on the `host` value. Default value is auto.
-    mode: QueueLength # QueueLength or MessageRate
-    value: "10.5" # message backlog or publish/sec. target per instance
-    activationValue: "10.5" # Optional. Activation threshold
-    queueName: q-medcat_14-in # Mandatory. Name of the queue
-    vhostName: / # Optional. If not specified, use the vhost in the `host` connection string. Required for Azure AD Workload Identity authorization (see bellow)
-    # Alternatively, you can use existing environment variables to read configuration from:
-    # See details in "Parameter list" section
-    # hostFromEnv: RABBITMQ_HOST # Optional. You can use this instead of `host` parameter
-    unsafeSsl: true
+  triggers:
+  - type: rabbitmq
+    metadata:
+      host: amqp://localhost:5672/vhost # Optional. If not specified, it must be done by using TriggerAuthentication.
+      protocol: auto # Optional. Specifies protocol to use, either amqp or http, or auto to autodetect based on the `host` value. Default value is auto.
+      mode: QueueLength # QueueLength or MessageRate
+      value: "10.5" # message backlog or publish/sec. target per instance
+      activationValue: "10.5" # Optional. Activation threshold
+      queueName: q-medcat_14-in # Mandatory. Name of the queue
+      vhostName: / # Optional. If not specified, use the vhost in the `host` connection string. Required for Azure AD Workload Identity authorization (see bellow)
+      # Alternatively, you can use existing environment variables to read configuration from:
+      # See details in "Parameter list" section
+      # hostFromEnv: RABBITMQ_HOST # Optional. You can use this instead of `host` parameter
+      unsafeSsl: "true"

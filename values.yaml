@@ -1,1 +1,2 @@
 # Default values for neulander.
+containerRegistry: docker.io/vvcb

@@ -21,12 +21,35 @@ spec:
     spec:
       containers:
         - name: api
-          image: "my-repo/my-api:latest"
+          image: {{ .Values.containerRegistry }}/neulander-api:latest
           ports:
             - containerPort: 8000
           env:
-            - name: ENVIRONMENT
-              value: "production"
+            - name: RABBITMQ_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: neulander-rmq-default-user
+                  key: host
+            - name: RABBITMQ_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: neulander-rmq-default-user
+                  key: port
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: neulander-rmq-default-user
+                  key: username
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: neulander-rmq-default-user
+                  key: password
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: neulander-api
+                  key: api-key            
           resources:
             limits:
               cpu: "500m"
@@ -34,7 +57,7 @@ spec:
             requests:
               cpu: "100m"
               memory: "256Mi"
-
+---
 ##############################################################################
 # API service
 ##############################################################################
