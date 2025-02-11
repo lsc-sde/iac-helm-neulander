@@ -1,0 +1,19 @@
+##############################################################################
+# API service
+##############################################################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: neulander-api
+  namespace: neulander
+  labels:
+    app: neulander-api
+spec:
+  selector:
+    app: neulander-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

@@ -1,0 +1,18 @@
+apiVersion: rabbitmq.com/v1beta1
+kind: RabbitmqCluster
+metadata:
+  name: neulander-rmq
+  namespace: neulander
+  annotations:
+    rabbitmq.com/topology-allowed-namespaces: neulander
+spec:
+  service:
+    type: ClusterIP
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
