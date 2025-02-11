@@ -5,7 +5,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: neulander-worker-medcat
-  namespace: neulander
   labels:
     app: neulander-medcat_14
 spec:
@@ -20,36 +19,36 @@ spec:
     spec:
       containers:
       - name: medcat-container
-        image: {{ .Values.containerRegistry }}/{{ .Values.medcat.image.name }}:{{ .Values.medcat.image.tag }}
+        image: {{ .Values.medcat.image.name }}
         imagePullPolicy: {{ .Values.api.image.pullPolicy }}
         ports:
         - containerPort: 8000
         env:
           - name: RABBITMQ_HOST
-            valueFrom:
-              secretKeyRef:
-                name: neulander-rmq-default-user
-                key: host
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.rabbitmq.host.secret }}
+                  key: {{ .Values.rabbitmq.host.secretKey }}
           - name: RABBITMQ_PORT
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-default-user
-                key: port
+                name: {{ .Values.rabbitmq.port.secret }}
+                key: {{ .Values.rabbitmq.port.secretKey }}
           - name: RABBITMQ_USER
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-nondefault-user
-                key: username
+                name: {{ .Values.rabbitmq.user.secret }}
+                key: {{.Values.rabbitmq.user.secretKey }}
           - name: RABBITMQ_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-nondefault-user
-                key: password
+                name: {{ .Values.rabbitmq.password.secret }}
+                key: {{ .Values.rabbitmq.password.secretKey }}
           - name: RABBITMQ_CONNECTION_STRING
             valueFrom:
               secretKeyRef:
-                name: neulander-rmq-nondefault-user
-                key: connection_string
+                name: {{ .Values.rabbitmq.connectionString.secret }}
+                key: {{ .Values.rabbitmq.connectionString.secretKey }}
           - name: MEDCAT_MODEL_PATH
             value: {{ .Values.medcat.medcatModelPath }}
           {{- if eq .Values.medcat.dummyMode true }}
@@ -67,6 +66,7 @@ spec:
         {{ else }}
             {{- toYaml .Values.medcat.resources | nindent 12 }}
         {{ end -}}
+        # ToDo: Investigate this later. 
         # livenessProbe:
         #   httpGet:
         #     path: /liveness

@@ -1,5 +1,5 @@
 # Default values for neulander.
-containerRegistry: docker.io/vvcb
+
 ##############################################################################
 # API
 ##############################################################################
@@ -8,6 +8,16 @@ api:
     name: neulander-api
     tag: latest
     pullPolicy: IfNotPresent
+  apiKey:
+    secret: neulander-api
+    secretKey: api-key
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
 
 ##############################################################################
 # Medcat Worker and KEDA scaling
@@ -35,9 +45,37 @@ medcat:
 ##############################################################################
 ingress:
   enabled: true
+  ingressClassName: nginx
   annotations: {}
   hosts:
     - host: chart-example.local
 
   tls:
     enabled: false
+##############################################################################
+# RABBITMQ Configuration
+##############################################################################
+rabbitmq:
+  allowedNamespaces: neulander # This should be the namespace where the entire application is deployed.
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+  host:
+    secret: neulander-rmq-default-user
+    secretKey: host
+  port:
+    secret: neulander-rmq-default-user
+    secretKey: port
+  user:
+    secret: neulander-rmq-nondefault-user
+    secretKey: username
+  password:
+    secret: neulander-rmq-nondefault-user
+    secretKey: password
+  connectionString:
+    secret: neulander-rmq-nondefault-user
+    secretKey: connection_string

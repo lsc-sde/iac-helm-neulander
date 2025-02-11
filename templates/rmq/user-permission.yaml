@@ -2,7 +2,7 @@ apiVersion: rabbitmq.com/v1beta1
 kind: User
 metadata:
   name: neulander
-  namespace: neulander
+  
 spec:
   tags:
   - policymaker
@@ -16,7 +16,7 @@ apiVersion: rabbitmq.com/v1beta1
 kind: Permission
 metadata:
   name: neulander-permission
-  namespace: neulander
+  
 spec:
   vhost: "/"
   user: "neulander" # name of the RabbitMQ user

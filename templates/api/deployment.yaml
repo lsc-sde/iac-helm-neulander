@@ -6,7 +6,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: neulander-api
-  namespace: neulander
   labels:
     app: neulander-api
 spec:
@@ -21,43 +20,39 @@ spec:
     spec:
       containers:
         - name: api
-          image: {{ .Values.containerRegistry }}/{{ .Values.api.image.name }}:{{ .Values.api.image.tag }}
+          image: {{ .Values.api.image.name }}
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           ports:
             - containerPort: 8000
+              name: http
           env:
             - name: RABBITMQ_HOST
               valueFrom:
                 secretKeyRef:
-                  name: neulander-rmq-default-user
-                  key: host
+                  name: {{ .Values.rabbitmq.host.secret }}
+                  key: {{ .Values.rabbitmq.host.secretKey }}
             - name: RABBITMQ_PORT
               valueFrom:
                 secretKeyRef:
-                  name: neulander-rmq-default-user
-                  key: port
+                  name: {{ .Values.rabbitmq.port.secret }}
+                  key: {{ .Values.rabbitmq.port.secretKey }}
             - name: RABBITMQ_USER
               valueFrom:
                 secretKeyRef:
-                  name: neulander-rmq-nondefault-user
-                  key: username
+                  name: {{ .Values.rabbitmq.user.secret }}
+                  key: {{.Values.rabbitmq.user.secretKey }}
             - name: RABBITMQ_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: neulander-rmq-nondefault-user
-                  key: password
+                  name: {{ .Values.rabbitmq.password.secret }}
+                  key: {{ .Values.rabbitmq.password.secretKey }}
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: neulander-api
-                  key: api-key            
+                  name: {{ .Values.api.apiKey.secret }}
+                  key: {{ .Values.api.apiKey.secretKey }}
           resources:
-            limits:
-              cpu: "500m"
-              memory: "512Mi"
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
+            {{ toYaml .Values.resources | indent 12 }}
           livenessProbe:
             httpGet:
               path: /

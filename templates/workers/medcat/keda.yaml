@@ -5,7 +5,7 @@ apiVersion: keda.sh/v1alpha1
 kind: ScaledObject
 metadata:
   name: neulander-worker-medcat
-  namespace: neulander
+  
   labels:
     app: neulander-medcat_14
 spec:

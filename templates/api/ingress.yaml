@@ -3,7 +3,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: neulander
-  namespace: neulander
+  
   annotations:
     {{- if .Values.ingress.annotations }}          
     {{ toYaml .Values.ingress.annotations | nindent 4 }}
@@ -11,7 +11,7 @@ metadata:
         {}
     {{- end }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
   {{- range .Values.ingress.hosts }}
   - host: {{ $.host | quote }}
@@ -23,7 +23,7 @@ spec:
           service:
             name: neulander-api
             port: 
-              number: 80
+              name: http
     {{- end }}
     {{ if .Values.ingress.tls.enabled }}
     tls:
