@@ -27,7 +27,7 @@ medcat:
     name: neulander-medcat
     tag: latest
     pullPolicy: IfNotPresent
-  dummyMode: false # Set to true to run medcat in dummy mode
+  dummyMode: true # Set to true to run medcat in dummy mode
   medcatModelPath: /models/medcat_model_14.zip # Ignored if dummyMode is true
   keda:
     queueLength: 100 # Number of messages per worker
