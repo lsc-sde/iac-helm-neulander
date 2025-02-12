@@ -7,7 +7,7 @@ metadata:
   name: neulander-worker-medcat
   
   labels:
-    app: neulander-medcat_14
+    xlscsde.nhs.uk/app: neulander-medcat_14
 spec:
   scaleTargetRef:
     apiVersion: apps/v1  # Optional. Default: apps/v1

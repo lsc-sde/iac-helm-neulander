@@ -8,10 +8,10 @@ metadata:
   name: neulander-api
   
   labels:
-    app: neulander-api
+    xlscsde.nhs.uk/app: neulander-api
 spec:
   selector:
-    app: neulander-api
+    xlscsde.nhs.uk/app: neulander-api
   ports:
     - name: http
       protocol: TCP

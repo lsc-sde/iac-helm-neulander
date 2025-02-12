@@ -7,20 +7,20 @@ kind: Deployment
 metadata:
   name: neulander-api
   labels:
-    app: neulander-api
+    xlscsde.nhs.uk/app: neulander-api
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: neulander-api
+      xlscsde.nhs.uk/app: neulander-api
   template:
     metadata:
       labels:
-        app: neulander-api
+        xlscsde.nhs.uk/app: neulander-api
     spec:
       containers:
         - name: api
-          image: {{ .Values.api.image.name }}
+          image: {{ .Values.registryUrl}}/{{ .Values.api.image.name }}:{{ .Values.api.image.tag }}
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           ports:
             - containerPort: 8000
@@ -52,7 +52,7 @@ spec:
                   name: {{ .Values.api.apiKey.secret }}
                   key: {{ .Values.api.apiKey.secretKey }}
           resources:
-            {{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.api.resources | nindent 12 }}
           livenessProbe:
             httpGet:
               path: /

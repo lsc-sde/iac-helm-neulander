@@ -3,10 +3,10 @@ kind: RabbitmqCluster
 metadata:
   name: neulander-rmq
   annotations:
-    rabbitmq.com/topology-allowed-namespaces: {[ .Values.rabbitmq.allowedNamespaces ]}
+    rabbitmq.com/topology-allowed-namespaces: {{ .Values.rabbitmq.allowedNamespaces }}
 spec:
   service:
     type: ClusterIP
   replicas: 1
   resources:
-    {{ toYaml .Values.rabbitmq.resources | indent 4 }}
+    {{- toYaml .Values.rabbitmq.resources | nindent 4 }}
