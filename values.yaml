@@ -1,12 +1,12 @@
 # Default values for neulander.
-registryUrl: docker.io/vvcb
+registryUrl: ghcr.io/lsc-sde
 ##############################################################################
 # API
 ##############################################################################
 api:
   image:
     name: neulander-api
-    tag: latest
+    tag: main
     pullPolicy: IfNotPresent
   apiKey:
     secret: neulander-api
@@ -24,8 +24,8 @@ api:
 ##############################################################################
 medcat:
   image:
-    name: neulander-medcat
-    tag: latest
+    name: neulander-medcat-worker
+    tag: main
     pullPolicy: IfNotPresent
   dummyMode: true # Set to true to run medcat in dummy mode
   medcatModelPath: /models/medcat_model_14.zip # Ignored if dummyMode is true

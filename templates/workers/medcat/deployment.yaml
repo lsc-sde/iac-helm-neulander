@@ -85,7 +85,7 @@ spec:
       - name: medcat-storage
         persistentVolumeClaim:
           claimName: neulander-medcat-storage
-
+          
         # ToDo: Investigate this later. 
         # livenessProbe:
         #   httpGet:
