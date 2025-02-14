@@ -44,10 +44,6 @@ medcat:
   tolerations: []
   affinity: {}
   storage:
-    size: 10Gi
-    storageClassName: default
-    accessModes:
-      - ReadWriteOnce
     mountPath: /models
 
 ##############################################################################
