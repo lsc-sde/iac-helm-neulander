@@ -3,6 +3,17 @@ entries:
   neulander:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2025-02-14T10:57:51.835830708Z"
+    description: A fault-tolerant, auto-scaling, extendable solution for clinical
+      text understanding.
+    digest: e008c9511c9e50298299016cd55f2e673d253be09e3f82e30914a8bf0a76580a
+    name: neulander
+    type: application
+    urls:
+    - https://github.com/lsc-sde/iac-helm-neulander/releases/download/neulander-0.2.0/neulander-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2025-02-13T00:35:49.757873211Z"
     description: A fault-tolerant, auto-scaling, extendable solution for clinical
       text understanding.
@@ -12,4 +23,4 @@ entries:
     urls:
     - https://github.com/lsc-sde/iac-helm-neulander/releases/download/neulander-0.1.0/neulander-0.1.0.tgz
     version: 0.1.0
-generated: "2025-02-13T00:35:49.757878371Z"
+generated: "2025-02-14T10:57:51.83584228Z"
